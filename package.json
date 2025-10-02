@@ -18,8 +18,6 @@
     "@penpot/plugin-styles": "^1.3.2",
     "@penpot/plugin-types": "^1.3.2",
     "ai": "^5.0.59",
-    "client-vector-search": "^0.2.0",
-    "idb": "^8.0.3",
     "vite-live-preview": "^0.4.0",
     "zod": "^4.1.11"
   }

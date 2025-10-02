@@ -6,7 +6,6 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { Experimental_Agent as Agent, LanguageModel, Output, stepCountIs, tool, type ModelMessage } from 'ai';
 import { z } from 'zod';
-import { PenpotRagTool } from '../tools/penpotRagTool';
 
 function getInstructions(userName: string, shapes: any = {}) {
   console.log('shapes', shapes);
@@ -29,7 +28,6 @@ const output = Output.object({
 })
 
 let agent: Agent<any, any, any>;
-let penpotRagTool: PenpotRagTool;
 
 export async function initAgent(_userId: string, shapes: string, userName: string) {
   Store.agentStatus = AgentStatus.INITIALIZING;
@@ -50,14 +48,6 @@ export async function initAgent(_userId: string, shapes: string, userName: strin
     model = openrouter('auto');
   }
 
-  // Inicializar el RAG tool
-  penpotRagTool = new PenpotRagTool();
-  const ragInitialized = await penpotRagTool.initialize();
-  
-  if (!ragInitialized) {
-    console.warn('⚠️ RAG tool initialization failed, continuing without RAG capabilities');
-  }
-  
   // Crear herramientas del agente
   const tools: any = {
     sayHelloTool: tool({
@@ -72,35 +62,6 @@ export async function initAgent(_userId: string, shapes: string, userName: strin
       },
     }),
   };
-
-  // Agregar herramienta RAG solo si se inicializó correctamente
-  if (ragInitialized) {
-    tools.penpotRagTool = tool({
-      description: 'Search the Penpot documentation for relevant information to help answer user questions about Penpot features, usage, and best practices',
-      inputSchema: z.object({
-        query: z.string().describe('The search query to find relevant documentation'),
-        topK: z.number().optional().describe('Number of results to return (default: 5)'),
-      }),
-      execute: async ({ query, topK = 5 }) => {
-        try {
-          const results = await penpotRagTool.search(query, topK);
-          return {
-            results: results.map(result => ({
-              title: result.title,
-              content: result.content,
-              url: result.url,
-              sourceFile: result.sourceFile,
-              score: result.score
-            }))
-          };
-        } catch (error) {
-          return {
-            error: `Search failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-          };
-        }
-      },
-    });
-  }
   
   agent = new Agent({
     model: model as LanguageModel,
@@ -133,30 +94,5 @@ export async function sendQueryToAgent(messages: ModelMessage[]) {
     return response;
   } catch (error) {
     return error instanceof Error ? error.message : 'Sorry, I encountered an error. Please try again.';
-  }
-}
-
-export function getRAGStatus() {
-  if (!penpotRagTool) {
-    return {
-      initialized: false,
-      error: 'RAG tool not initialized'
-    };
-  }
-  
-  return penpotRagTool.getStatus();
-}
-
-export async function clearRAGCache() {
-  if (!penpotRagTool) {
-    return false;
-  }
-  
-  try {
-    await penpotRagTool.clearCache();
-    return true;
-  } catch (error) {
-    console.error('Error clearing RAG cache:', error);
-    return false;
   }
 }

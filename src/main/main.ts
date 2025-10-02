@@ -27,11 +27,9 @@ window.addEventListener('message', async (event) => {
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (!window.parent || window.parent === window) {
-    setTimeout(async () => {
-      handleThemeChange('light');
-      const userId = crypto.randomUUID();
-      const initResponse = await initAgent(userId, '{}', 'Axel');
-      initChat((initResponse as any).text);
-    }, 1000);
+    handleThemeChange('light');
+    const userId = crypto.randomUUID();
+    const initResponse = await initAgent(userId, '{}', 'Axel');
+    initChat((initResponse as any).text);
   }
 });
