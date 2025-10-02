@@ -1,13 +1,77 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>browser-agent</title>
+    <link rel="stylesheet" href="/src/style/style.css">
+    <link rel="stylesheet" href="/src/style/chat.css">
+    <title>AI Penpot Wizard</title>
   </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+  <body data-theme="undefined">
+    <div class="chat" data-status="offline" data-config-opened="false">
+      <!-- Header -->
+      <header class="chat__header">
+        <div class="chat__header-bar">
+          <div class="chat__status" title="Click to configure">
+            <span class="chat__status-text">Offline</span>
+            <span class="chat__status-indicator"></span>
+          </div>
+        </div>
+        <form class="chat__config-form" data-opened="false">
+          <div class="config__field">
+            <label for="ai-service" class="config__label">AI Service:</label>
+            <select id="ai-service" name="provider" class="config__select" required>
+              <option value="openai">OpenAI</option>
+              <option value="openrouter">OpenRouter</option>
+            </select>
+          </div>
+          <div class="config__field">
+            <label for="api-key" class="config__label">OpenRouterAPI Key:</label>
+            <input 
+              type="password" 
+              id="api-key" 
+              name="apiKey"
+              class="config__input" 
+              placeholder="Enter your API key"
+              minlength="8"
+              pattern="^[a-zA-Z0-9\-_]{8,}$"
+              title="API key must be at least 8 characters long and contain only letters, numbers, hyphens, and underscores"
+              required
+            />
+          </div>
+          <div class="config__buttons">
+            <button type="button" class="config__cancel-btn" id="cancel-config">
+              Cancel
+            </button>
+            <button type="submit" class="config__save-btn" id="save-config">
+              Save Configuration
+            </button>
+          </div>
+        </form>
+      </header>
+
+      <!-- Chat Content -->
+      <main class="chat__content">
+        <div class="chat__messages"></div>
+      </main>
+
+      <!-- Footer with Message Input -->
+      <footer class="chat__footer">
+        <div class="chat__input-container">
+          <textarea 
+            class="chat__input"
+            id="chat-input"
+            placeholder="Type your message here..."
+            rows="1"
+          ></textarea>
+          <button class="chat__send-btn" type="button">
+            <svg class="chat__send-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+      </footer>
+    </div>
+    <script type="module" src="/src/main/main.ts"></script>
   </body>
 </html>

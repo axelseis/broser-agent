@@ -1,0 +1,34 @@
+@import "@penpot/plugin-styles/styles.css";
+
+body {
+  line-height: 1.5;
+  padding: 0;
+}
+
+p {
+  margin-block-end: 0.75rem;
+}
+
+/* Streaming cursor animation */
+.chat__streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  background-color: currentColor;
+  margin-left: 2px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Ensure streaming messages have proper spacing */
+.chat__message--received .chat__message-content {
+  min-height: 1.2em;
+}
