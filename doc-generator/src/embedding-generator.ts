@@ -2,7 +2,7 @@
  * Embedding generator using client-vector-search
  */
 
-import { getEmbedding, EmbeddingIndex } from 'client-vector-search';
+import { getEmbedding, EmbeddingIndex } from '../../src/lib/index.mjs';
 import { DocumentChunk, EmbeddingData, ProcessedDocument } from './types.js';
 
 export interface EmbeddingStats {
