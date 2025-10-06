@@ -1,5 +1,5 @@
 import { LITERALS, SETTINGS_KEY } from "../constants";
-import { Store } from "../store";
+import { $agentStatus, $configFormOpened, $agentModel, $imageModel, $embeddingsModel } from "../stores";
 import { AgentSettings } from "../types";
 
 const settingsDom = document.querySelector('.chat__config-form') as HTMLFormElement;
@@ -13,6 +13,9 @@ const statusText = document.querySelector('.chat__status-text') as HTMLSpanEleme
 const defaultSettings: AgentSettings = {
   provider: 'openai',
   apiKey: '',
+  agentModel: 'gpt-4o',
+  imageModel: 'dall-e-3',
+  embeddingsModel: 'text-embedding-ada-002',
 };
 
 function openSettingsForm() {
@@ -24,17 +27,34 @@ function openSettingsForm() {
   apiKeyInput.focus();
 
   settingsDom.setAttribute('opened', 'true');
+  $configFormOpened.set(true);
 }
 
 function closeSettingsForm() {
   settingsDom.setAttribute('opened', 'false');
+  $configFormOpened.set(false);
 }
 
 function getSettings() {
   const savedSettings = localStorage.getItem(SETTINGS_KEY);
   const settings: AgentSettings = savedSettings ? JSON.parse(savedSettings) as AgentSettings : defaultSettings;
 
+  // Update store with model settings
+  updateStoreWithSettings(settings);
+
   return settings;
+}
+
+function updateStoreWithSettings(settings: AgentSettings) {
+  if (settings.agentModel) {
+    $agentModel.set(settings.agentModel);
+  }
+  if (settings.imageModel) {
+    $imageModel.set(settings.imageModel);
+  }
+  if (settings.embeddingsModel) {
+    $embeddingsModel.set(settings.embeddingsModel);
+  }
 }
 
 function validateSettings(settings: AgentSettings) {
@@ -65,14 +85,23 @@ export function checkSettings() {
         const formData = new FormData(settingsDom);
         const provider = formData.get('provider') as 'openai' | 'openrouter';
         const apiKey = formData.get('apiKey') as string;
+        const agentModel = formData.get('agentModel') as string || 'gpt-4o';
+        const imageModel = formData.get('imageModel') as string || 'dall-e-3';
+        const embeddingsModel = formData.get('embeddingsModel') as string || 'text-embedding-ada-002';
 
         const settings: AgentSettings = {
           provider,
           apiKey,
+          agentModel,
+          imageModel,
+          embeddingsModel,
         };
 
         // Save to localStorage
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+
+        // Update store with new settings
+        updateStoreWithSettings(settings);
 
         // Resolve the promise with the new settings
         resolve(settings);
@@ -93,10 +122,9 @@ export function checkSettings() {
 statusBtn.addEventListener('click', openSettingsForm);
 cancelBtn.addEventListener('click', closeSettingsForm);
 
-Store.subscribe((key) => {
-  if (key === 'agentStatus') {
-    const activeSettings = getSettings();
-    chatContainer.setAttribute('data-status', Store.agentStatus.toString());
-    statusText.textContent = `${LITERALS.STATUS[Store.agentStatus]} (${activeSettings.provider})`;
-  }
+// Subscribe to agent status changes
+$agentStatus.subscribe((agentStatus) => {
+  const activeSettings = getSettings();
+  chatContainer.setAttribute('data-status', agentStatus.toString());
+  statusText.textContent = `${LITERALS.STATUS[agentStatus]} (${activeSettings.provider})`;
 });

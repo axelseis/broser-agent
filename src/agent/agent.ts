@@ -1,18 +1,29 @@
 import { checkSettings } from "../settings/settings";
-import { Store } from "../store";
+import { $agentStatus, $agentModel } from "../stores";
 import { AgentStatus } from "../types";
 import { agentResponseSchema } from "../types";
 import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { Experimental_Agent as Agent, LanguageModel, Output, stepCountIs, tool, type ModelMessage } from 'ai';
 import { z } from 'zod';
+import { penpotRagTool } from "../tools/penpotRagTool";
 
 function getInstructions(userName: string, shapes: any = {}) {
   console.log('shapes', shapes);
   return `
   <instructions>
   You are a Penpot project assistant that focuses on helping users solve specific problems in their current project. You analyze the Penpot shapes to understand what the user is working on and provide targeted solutions, design tips, and step-by-step tutorials to help them achieve their goals.
+  
   Your primary function is to help users solve specific problems in their Penpot projects by providing design tips, step-by-step tutorials, and precise interface guidance using the latest documentation.
+  
+  IMPORTANT: When users ask questions about Penpot features, functionality, or how to do something, ALWAYS use the penpotRagTool to search the official documentation first. This ensures you provide accurate, up-to-date information based on the official Penpot user guide.
+  
+  Response Guidelines:
+  - For feature questions: Use penpotRagTool to find relevant documentation sections
+  - For how-to questions: Use penpotRagTool to find step-by-step instructions
+  - For design tips: Combine penpotRagTool results with your knowledge
+  - Always cite sources from the documentation when available
+  - Provide specific, actionable advice based on the documentation
   </instructions>
   <user_info>
   name: ${userName}.
@@ -30,9 +41,10 @@ const output = Output.object({
 let agent: Agent<any, any, any>;
 
 export async function initAgent(_userId: string, shapes: string, userName: string) {
-  Store.agentStatus = AgentStatus.INITIALIZING;
+  $agentStatus.set(AgentStatus.INITIALIZING);
 
   const {provider, apiKey} = checkSettings();
+  const agentModel = $agentModel.get();
 
   let model;
 
@@ -40,12 +52,12 @@ export async function initAgent(_userId: string, shapes: string, userName: strin
     const openai = createOpenAI({
       apiKey: apiKey,
     });
-    model = openai('gpt-4o');
+    model = openai(agentModel);
   } else if (provider === 'openrouter') {
     const openrouter = createOpenRouter({
       apiKey: apiKey,
     });
-    model = openrouter('auto');
+    model = openrouter(agentModel);
   }
 
   // Crear herramientas del agente
@@ -61,6 +73,7 @@ export async function initAgent(_userId: string, shapes: string, userName: strin
         };
       },
     }),
+    penpotRagTool: penpotRagTool,
   };
   
   agent = new Agent({
@@ -76,7 +89,7 @@ export async function initAgent(_userId: string, shapes: string, userName: strin
   });
 
   if (initResponse) {
-    Store.agentStatus = AgentStatus.ONLINE;
+    $agentStatus.set(AgentStatus.ONLINE);
     console.log('initResponse', initResponse);
     return initResponse;
   } else {

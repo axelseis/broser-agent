@@ -1,5 +1,6 @@
 import { initAgent } from "../agent/agent";
 import { initChat } from "./chat";
+import { initializeStore } from "../stores";
 
 function handleThemeChange(theme: string) {
   document.body.dataset.theme = theme;
@@ -32,4 +33,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     const initResponse = await initAgent(userId, '{}', 'Axel');
     initChat((initResponse as any).text);
   }
+  initializeStore();
 });

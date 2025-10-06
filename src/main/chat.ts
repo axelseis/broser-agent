@@ -1,7 +1,8 @@
-import { AssistantModelMessage, ModelMessage, UserModelMessage } from 'ai';
+import { ModelMessage } from 'ai';
 import { sendQueryToAgent } from '../agent/agent';
+import { ChatMessage } from '../types';
 
-export const messages: ModelMessage[] = [];
+export const messages: ChatMessage[] = [];
 const inputElement = document.querySelector(".chat__input") as HTMLTextAreaElement;
 const sendButton = document.querySelector(".chat__send-btn") as HTMLButtonElement;
 
@@ -30,7 +31,7 @@ export async function sendMessage(message?: string) {
   inputElement.value = '';
   inputElement.style.height = 'auto';
   
-  const userMessage: UserModelMessage = {
+  const userMessage: ChatMessage = {
     role: 'user',
     content: message,
   };
@@ -39,7 +40,7 @@ export async function sendMessage(message?: string) {
   
   const streamingMessageIndex = messages.length;
 
-  const assistantMessage: AssistantModelMessage = {
+  const assistantMessage: ChatMessage = {
     role: 'assistant',
     content: '',
   };
@@ -48,7 +49,13 @@ export async function sendMessage(message?: string) {
   renderAllMessages();
   
   try {
-    const response = await sendQueryToAgent(messages);
+    // Convert ChatMessage to ModelMessage for the agent
+    const modelMessages: ModelMessage[] = messages.map(msg => ({
+      role: msg.role,
+      content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+    }));
+    
+    const response = await sendQueryToAgent(modelMessages);
     console.log('response', response);
     console.log('messages', messages);
 

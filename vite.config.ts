@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import livePreview from "vite-live-preview";
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
   plugins: [
@@ -11,6 +12,7 @@ export default defineConfig({
         },
       },
     }),
+    nodePolyfills({ include: ['stream', 'util'] }),
   ],
   build: {
     rollupOptions: {

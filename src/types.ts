@@ -22,12 +22,18 @@ export const agentResponseSchema = z.object({
     title: z.string(),
     section_title: z.string(),
     section_path: z.string(),
+    url: z.string().optional(),
+    summary: z.string().optional(),
+    relevanceScore: z.number().optional(),
   })).optional(),
 });
 
 export interface AgentSettings {
   provider: 'openai' | 'openrouter';
   apiKey: string;
+  agentModel?: string;
+  imageModel?: string;
+  embeddingsModel?: string;
 }
 export interface PluginMessage {
   source: string;
@@ -47,11 +53,5 @@ export enum AgentStatus {
   NOT_CONFIGURED = 'Not Configured',
   ONLINE = 'Online',
   OFFLINE = 'Offline'
-}
-
-export interface StoreData {
-  agentStatus: AgentStatus;
-  configFormOpened: boolean;
-  [key: string]: any;
 }
 
