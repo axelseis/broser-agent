@@ -97,6 +97,7 @@
           color: var(--foreground-primary);
           font-size: var(--font-size-s);
           transition: border-color 0.12s ease-in-out;
+          -webkit-text-security: disc;
 
           &:focus {
             outline: none;

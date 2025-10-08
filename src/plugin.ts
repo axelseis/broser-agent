@@ -1,5 +1,12 @@
-import { PluginMessage } from './types';
+import { PluginMessage, PluginMessageType } from './types';
 import { cleanVoidProperties } from './utils/utils';
+
+const sourceName = "penpotAgentPlugin";
+
+console.log('PLUGIN init', PluginMessageType.GET_INITIAL_DATA);
+
+penpot.on("themechange", sendThemeToMain);
+penpot.on("pagechange", sendProjectDataToMain);
 
 penpot.ui.open("AI Penpot Wizard", `?theme=${penpot.theme}`, {
   width: 500,
@@ -8,75 +15,54 @@ penpot.ui.open("AI Penpot Wizard", `?theme=${penpot.theme}`, {
 
 penpot.ui.onMessage<PluginMessage>((pluginMessage) => {
   switch (pluginMessage.type) {
-    case "getInitialData":
-      sendThemeToPlugin();
-      sendInitialDataToPlugin();
+    case 'get_initial_data':
+      sendInitialDataToMain();
       break;
   }
 });
 
-penpot.on("themechange", () => {
-  sendThemeToPlugin();
-});
+function sendInitialDataToMain() {
+  sendThemeToMain();
+  sendUserDataToMain();
+  sendProjectDataToMain();
+}
 
-penpot.on("pagechange", () => {
-  sendPageContentToPlugin();
-});
-
-function sendThemeToPlugin() {
+function sendThemeToMain() {
   penpot.ui.sendMessage({
-    source: "penpot",
-    type: "themeChange",
+    source: sourceName,
+    type: 'theme_change',
     payload: penpot.theme,
   });
 }
 
-function sendInitialDataToPlugin() {
-  try {
-    const userData = getUserData();
-    const pageData = getPageContents();
-
-    penpot.ui.sendMessage({
-      source: "penpot",
-      type: "initialMessageData",
-      payload: {...userData, ...pageData},
-    });
-  } catch (error) {
-    console.error("Error sending initial data to plugin:", error);
-  }
+function sendUserDataToMain() {
+  penpot.ui.sendMessage({
+    source: sourceName,
+    type: 'user_data',
+    payload: {
+      id: penpot.currentUser.id,
+      name: penpot.currentUser.name,
+    },
+  });
 }
 
-function sendPageContentToPlugin() {
+function sendProjectDataToMain() {
   try {
-    const userData = getUserData();
-    const pageData = getPageContents();
-
+    const allShapes = penpot.currentPage?.findShapes({});  
+    const cleanedShapes = cleanVoidProperties(allShapes);
+  
     penpot.ui.sendMessage({
-      source: "penpot",
-      type: "pageContent",
-      payload: {...userData, ...pageData},
+      source: sourceName,
+      type: 'project_data',
+      payload: {
+        id: penpot.currentPage?.id,
+        name: penpot.currentPage?.name,
+        shapes: cleanedShapes,
+      },
     });
   } catch (error) {
     console.error("Error sending page content to plugin:", error);
   }
 }
-
-function getUserData() {
-  return {
-    userName: penpot.currentUser.name,
-    userId: penpot.currentUser.id,
-  }
-}
-
-function getPageContents() {
-  const allShapes = penpot.currentPage?.findShapes({});  
-  const cleanedShapes = cleanVoidProperties(allShapes);
-
-  return {
-    shapes: cleanedShapes,
-  }
-}
-
-sendInitialDataToPlugin();
 
 export default penpot;

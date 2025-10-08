@@ -1,53 +1,42 @@
 import { atom } from 'nanostores';
-import { AgentStatus } from './types';
+import { AssistantAnswer, ChatMessages, UserData, ProjectData, MainStatus } from './types';
+import { EmbeddingModel, ImageModel, LanguageModel } from 'ai';
+import { PenpotAgent } from './agent/PenpotAgent';
+import { PenpotTool } from './tools/PenpotTool';
 
-// Create individual atoms for each piece of state
-export const $agentStatus = atom<AgentStatus>(AgentStatus.OFFLINE);
+// Configuration atoms
+export const $activeTheme = atom<string>('light');
+export const $mainStatus = atom<MainStatus>(MainStatus.OFFLINE);
+export const $userData = atom<UserData>({ id: crypto.randomUUID(), name: 'Axel' });
+export const $projectData = atom<ProjectData>({ id: crypto.randomUUID(), name: 'Penpot Agent' });
 export const $configFormOpened = atom<boolean>(false);
 
-// Model configuration atoms
-export const $agentModel = atom<string>('gpt-4o');
-export const $imageModel = atom<string>('dall-e-3');
-export const $embeddingsModel = atom<string>('text-embedding-ada-002');
+// Chat atoms
+export const $mainAgent = atom<PenpotAgent | undefined>(undefined);
+export const $penpotAgents = atom<PenpotAgent[]>([]);
+export const $penpotTools = atom<PenpotTool[]>([]);
+export const $chatMessages = atom<ChatMessages>([]);
+export const $runningAnswer = atom<AssistantAnswer | undefined>(undefined);
 
-// Helper function to get all store values (for debugging/testing)
-export function getStoreState() {
-  return {
-    agentStatus: $agentStatus.get(),
-    configFormOpened: $configFormOpened.get(),
-    agentModel: $agentModel.get(),
-    imageModel: $imageModel.get(),
-    embeddingsModel: $embeddingsModel.get(),
-  };
-}
-
-// Helper function to update multiple stores at once
-export function updateStores(updates: Partial<{
-  agentStatus: AgentStatus;
-  configFormOpened: boolean;
-  agentModel: string;
-  imageModel: string;
-  embeddingsModel: string;
-}>) {
-  if (updates.agentStatus !== undefined) {
-    $agentStatus.set(updates.agentStatus);
-  }
-  if (updates.configFormOpened !== undefined) {
-    $configFormOpened.set(updates.configFormOpened);
-  }
-  if (updates.agentModel !== undefined) {
-    $agentModel.set(updates.agentModel);
-  }
-  if (updates.imageModel !== undefined) {
-    $imageModel.set(updates.imageModel);
-  }
-  if (updates.embeddingsModel !== undefined) {
-    $embeddingsModel.set(updates.embeddingsModel);
-  }
-}
-
-// Initialize store with default values
-export function initializeStore() {
-  // Store will be initialized with default values from atom definitions
-  console.log('Store initialized with default values:', getStoreState());
-}
+// Agent atoms
+export const $languageModel = atom<LanguageModel>('gpt-4o');
+export const $embeddingModel = atom<EmbeddingModel>('text-embedding-ada-002');
+export const $imageAnalysisModel = atom<LanguageModel>('gpt-4o');
+export const $imageGenerationModel = atom<ImageModel>({
+  specificationVersion: 'v2',
+  provider: 'openai',
+  modelId: 'dall-e-3',
+  maxImagesPerCall: 1,
+  doGenerate: async (_options) => {
+    return {
+      images: [],
+      warnings: [],
+      providerMetadata: undefined,
+      response: {
+        timestamp: new Date(),
+        modelId: 'dall-e-3',
+        headers: undefined,
+      },
+    };
+  },
+});

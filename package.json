@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:plugin": "NODE_ENV='development' vite build --watch",
+    "dev:plugin": "vite build -c vite.config.plugin.ts && NODE_ENV='development' vite build --watch",
     "build": "tsc && vite build",
+    "build:plugin": "vite build -c vite.config.plugin.ts",
     "preview": "vite preview",
     "generate-embeddings": "node embeddings-generator/generate-embeddings.js",
     "test-embeddings-config": "node embeddings-generator/test-config.js",

@@ -2,9 +2,8 @@ import { z } from "zod";
 import { tool } from "ai";
 import { restore } from '@orama/plugin-data-persistence';
 import { search } from '@orama/orama';
-import OpenAI from 'openai';
-import { checkSettings } from "../settings/settings";
-import { $embeddingsModel } from "../stores";
+import { $embeddingModel } from "../stores";
+import { embed } from "ai";
 
 // Cache para la base de datos Orama
 let cachedDB: any = null;
@@ -12,13 +11,6 @@ let isInitializing = false;
 
 // Configuración de embeddings
 const VEC_DIM = 1536;
-
-const {apiKey} = checkSettings();
-// Cliente OpenAI para generar embeddings de consultas
-const openai = new OpenAI({
-  apiKey: apiKey,
-  dangerouslyAllowBrowser: true,
-});
 
 /**
  * Genera embeddings para una consulta usando OpenAI
@@ -28,13 +20,12 @@ async function getEmbedding(text: string): Promise<number[]> {
   if (!input) return new Array(VEC_DIM).fill(0);
   
   try {
-    const embeddingsModel = $embeddingsModel.get();
-    const response = await openai.embeddings.create({
-      model: embeddingsModel,
-      input
+    const response = await embed({
+      model: $embeddingModel.get(),
+      value: input
     });
     
-    const embedding = response.data?.[0]?.embedding;
+    const embedding = response.embedding;
     if (!embedding) throw new Error('No embedding returned');
     return embedding;
   } catch (error) {

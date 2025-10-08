@@ -8,7 +8,7 @@
     <title>AI Penpot Wizard</title>
   </head>
   <body data-theme="undefined">
-    <div class="chat" data-status="offline" data-config-opened="false">
+    <div id="chat" class="chat" data-status="offline" data-config-opened="false">
       <!-- Header -->
       <header class="chat__header">
         <div class="chat__header-bar">
@@ -28,7 +28,8 @@
           <div class="config__field">
             <label for="api-key" class="config__label">OpenRouterAPI Key:</label>
             <input 
-              type="password" 
+              type="text"
+              autocomplete="off"             
               id="api-key" 
               name="apiKey"
               class="config__input" 
@@ -53,6 +54,7 @@
       <!-- Chat Content -->
       <main class="chat__content">
         <div class="chat__messages"></div>
+        <div class="chat__running-answer"></div>
       </main>
 
       <!-- Footer with Message Input -->

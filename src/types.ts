@@ -1,22 +1,75 @@
-import { z } from "zod";
+import { z, ZodObject } from "zod";
+import { ToolSet } from 'ai';
 
-export enum AgentResponseType {
-  THINKING = 'thinking',
-  SIMPLE_RESPONSE = 'simple_response',
-  STEP_BY_STEP_TUTORIAL = 'step_by_step_tutorial',
-  DESIGN_TIPS = 'design_tips',
+export const enum PluginMessageType {
+  GET_INITIAL_DATA = 'get_initial_data',
+  THEME_CHANGE = 'theme_change',
+  USER_DATA = 'user_data',
+  PROJECT_DATA = 'project_data',
 }
 
-export const agentResponseSchema = z.object({
+export enum MainStatus {
+  INITIALIZING = 'Initializing',
+  NOT_CONFIGURED = 'Not Configured',
+  ONLINE = 'Online',
+  OFFLINE = 'Offline'
+}
+
+export enum AssistantAnswerType {
+  SIMPLE_ANSWER = 'simple_answer',
+  STEP_BY_STEP_TUTORIAL = 'step_by_step_tutorial',
+}
+
+export enum AgentToolType {
+  RAG = 'RAG',
+  PLUGIN_FUNCTION = 'plugin_function',
+  AGENT_CALL = 'agent_call',
+  IMAGE_ANALYSIS = 'image_analysis',
+  IMAGE_GENERATION = 'image_generation',
+}
+
+export interface PluginMessage {
+  source: string;
+  type: PluginMessageType;
+  payload: any;
+}
+
+export interface UserData {
+  id: string;
+  name: string;
+}
+
+export interface ProjectData {
+  id: string;
+  name: string;
+  shapes?: any;
+}
+
+export type ToolSettings = {
+  type: AgentToolType;
+  name: string;
+  description: string;
+  inputSchema: ZodObject<any>;
+  ragContentsFile?: string;
+  functionName?: string;
+  agentName?: string;
+}
+export interface PenpotAgentSettings {
+  name: string;
+  instructions: string;
+  outputSchema: ZodObject<any>;
+  tools: ToolSet;
+}
+
+export const assistantAnswerSchema = z.object({
   answer: z.object({
-    type: z.enum(AgentResponseType),
-    title: z.string(),
-    description: z.string().optional(),
+    type: z.enum(AssistantAnswerType),
+    simple_answer: z.string().optional().describe('Simple answer'),
     steps: z.array(z.object({
       title: z.string(),
       description: z.string(),
-    })).optional().describe('Steps of the answer when type is step_by_step_tutorial'),
-    items: z.array(z.string()).optional().describe('Items of the answer when type is design_tips'),
+    })).optional().describe('Steps of a step by step tutorial'),
+    design_tips: z.array(z.string()).optional().describe('Design tips'),
   }),
   penpot_user_guide_sources: z.array(z.object({
     title: z.string(),
@@ -28,30 +81,25 @@ export const agentResponseSchema = z.object({
   })).optional(),
 });
 
-export interface AgentSettings {
-  provider: 'openai' | 'openrouter';
-  apiKey: string;
-  agentModel?: string;
-  imageModel?: string;
-  embeddingsModel?: string;
-}
-export interface PluginMessage {
-  source: string;
-  type: string;
-  payload: any;
+export type AssistantAnswer = z.infer<typeof assistantAnswerSchema>;
+export interface UserQueryMessage {
+  role: 'user';
+  content: string;
 }
 
-export type AgentResponse = z.infer<typeof agentResponseSchema>;
-export interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string | AgentResponse;
+export interface AssistantAnswerMessage {
+  role: 'assistant';
+  content: AssistantAnswer;
   isStreaming?: boolean;
 }
 
-export enum AgentStatus {
-  INITIALIZING = 'Initializing',
-  NOT_CONFIGURED = 'Not Configured',
-  ONLINE = 'Online',
-  OFFLINE = 'Offline'
-}
+export type ChatMessages = (UserQueryMessage | AssistantAnswerMessage)[];
 
+export interface PluginSettings {
+  provider: 'openai' | 'openrouter';
+  apiKey: string;
+  languageModelName: string;
+  imageAnalysisModelName: string;
+  imageGenerationModelName: string;
+  embeddingModelName: string;
+}

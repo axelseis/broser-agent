@@ -1,14 +1,14 @@
-import { AgentStatus } from "./types";
+import { MainStatus } from "./types";
 
 export const SETTINGS_KEY = 'penpot-ai-settings';
 
 // Application constants and messages
 export const LITERALS = {
   STATUS: {
-    [AgentStatus.INITIALIZING]: 'Initializing',
-    [AgentStatus.NOT_CONFIGURED]: 'Not Configured',
-    [AgentStatus.ONLINE]: 'Online',
-    [AgentStatus.OFFLINE]: 'Offline'
+    [MainStatus.INITIALIZING]: 'Initializing',
+    [MainStatus.NOT_CONFIGURED]: 'Not Configured',
+    [MainStatus.ONLINE]: 'Online',
+    [MainStatus.OFFLINE]: 'Offline'
   },
   CONFIG: {
     AI_SERVICE_LABEL: 'AI Service:',

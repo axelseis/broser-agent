@@ -15,9 +15,9 @@ export default defineConfig({
     nodePolyfills({ include: ['stream', 'util'] }),
   ],
   build: {
+    emptyOutDir: false,
     rollupOptions: {
       input: {
-        plugin: "src/plugin.ts",
         main: "src/main/main.ts",
         index: "./index.html",
       },
@@ -25,6 +25,10 @@ export default defineConfig({
         entryFileNames: "[name].js",
       },
     },
+  },
+  server: {
+    port: 5174,
+    cors: true,
   },
   preview: {
     port: 4400,

@@ -1,6 +1,9 @@
 import { LITERALS, SETTINGS_KEY } from "../constants";
-import { $agentStatus, $configFormOpened, $agentModel, $imageModel, $embeddingsModel } from "../stores";
-import { AgentSettings } from "../types";
+import { $mainStatus, $configFormOpened, $languageModel, $imageAnalysisModel, $imageGenerationModel, $embeddingModel } from "../stores";
+import { PluginSettings } from "../types";
+import { createOpenAI } from '@ai-sdk/openai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { ImageModel, EmbeddingModel } from "ai";
 
 const settingsDom = document.querySelector('.chat__config-form') as HTMLFormElement;
 const providerSelect = document.getElementById('ai-service') as HTMLSelectElement;
@@ -10,16 +13,16 @@ const cancelBtn = document.getElementById('cancel-config') as HTMLButtonElement;
 const chatContainer = document.querySelector('.chat') as HTMLDivElement;
 const statusText = document.querySelector('.chat__status-text') as HTMLSpanElement;
 
-const defaultSettings: AgentSettings = {
+const defaultSettings: PluginSettings = {
   provider: 'openai',
   apiKey: '',
-  agentModel: 'gpt-4o',
-  imageModel: 'dall-e-3',
-  embeddingsModel: 'text-embedding-ada-002',
+  languageModelName: 'gpt-4o',
+  imageAnalysisModelName: 'gpt-4o',
+  imageGenerationModelName: 'dall-e-3',
+  embeddingModelName: 'text-embedding-ada-002',
 };
 
 function openSettingsForm() {
-  console.log('openSettingsForm');
   const activeSettings = getSettings();
 
   providerSelect.value = activeSettings.provider;
@@ -37,41 +40,50 @@ function closeSettingsForm() {
 
 function getSettings() {
   const savedSettings = localStorage.getItem(SETTINGS_KEY);
-  const settings: AgentSettings = savedSettings ? JSON.parse(savedSettings) as AgentSettings : defaultSettings;
-
-  // Update store with model settings
-  updateStoreWithSettings(settings);
+  const settings: PluginSettings = savedSettings ? JSON.parse(savedSettings) as PluginSettings : defaultSettings;
 
   return settings;
 }
 
-function updateStoreWithSettings(settings: AgentSettings) {
-  if (settings.agentModel) {
-    $agentModel.set(settings.agentModel);
-  }
-  if (settings.imageModel) {
-    $imageModel.set(settings.imageModel);
-  }
-  if (settings.embeddingsModel) {
-    $embeddingsModel.set(settings.embeddingsModel);
+function updateStoreWithSettings(settings: PluginSettings) {
+  const {provider, apiKey, languageModelName, imageAnalysisModelName, imageGenerationModelName, embeddingModelName} = settings;
+
+  switch (provider) {
+    case 'openai':
+      const openai = createOpenAI({
+        apiKey: apiKey,
+      });
+      $languageModel.set(openai(languageModelName));
+      $imageAnalysisModel.set(openai(imageAnalysisModelName));
+      $imageGenerationModel.set(openai.image(imageGenerationModelName));
+      $embeddingModel.set(openai.embedding(embeddingModelName));
+      break;
+    case 'openrouter':
+      const openrouter = createOpenRouter({
+        apiKey: apiKey,
+      });
+      $languageModel.set(openrouter(languageModelName));
+      $imageAnalysisModel.set(openrouter(imageAnalysisModelName));
+      // Note: OpenRouter doesn't have separate image/embedding models, using language model as fallback
+      $imageGenerationModel.set(openrouter(imageGenerationModelName) as unknown as ImageModel);
+      $embeddingModel.set(openrouter(embeddingModelName) as unknown as EmbeddingModel);
+      break;
   }
 }
 
-function validateSettings(settings: AgentSettings) {
-  if (!settings.provider || !settings.apiKey) {
+function validateSettings(settings: PluginSettings) {
+  if (!settings.provider || !settings.apiKey || !settings.languageModelName || !settings.imageAnalysisModelName || !settings.imageGenerationModelName || !settings.embeddingModelName) {
     return false;
   }
-
   return true;
 }
 
-export function checkSettings() {
-  let activeSettings: AgentSettings = getSettings();
-  
+export async function checkSettings() {
+  let activeSettings: PluginSettings = getSettings();
+
   if (!validateSettings(activeSettings)) {
-  console.log('activeSettings', activeSettings);
     openSettingsForm();
-    const newSettings = new Promise<AgentSettings>((resolve) => {
+    const newSettings = await new Promise<PluginSettings>((resolve) => {
       settingsDom.addEventListener('submit', (e) => {
         e.preventDefault();
         
@@ -85,16 +97,18 @@ export function checkSettings() {
         const formData = new FormData(settingsDom);
         const provider = formData.get('provider') as 'openai' | 'openrouter';
         const apiKey = formData.get('apiKey') as string;
-        const agentModel = formData.get('agentModel') as string || 'gpt-4o';
-        const imageModel = formData.get('imageModel') as string || 'dall-e-3';
-        const embeddingsModel = formData.get('embeddingsModel') as string || 'text-embedding-ada-002';
+        const languageModelName = formData.get('languageModelName') as string || 'gpt-4o';
+        const imageAnalysisModelName = formData.get('imageAnalysisModelName') as string || 'gpt-4o';
+        const imageGenerationModelName = formData.get('imageGenerationModelName') as string || 'dall-e-3';
+        const embeddingModelName = formData.get('embeddingModelName') as string || 'text-embedding-ada-002';
 
-        const settings: AgentSettings = {
+        const settings: PluginSettings = {
           provider,
           apiKey,
-          agentModel,
-          imageModel,
-          embeddingsModel,
+          languageModelName,
+          imageAnalysisModelName,
+          imageGenerationModelName,
+          embeddingModelName,
         };
 
         // Save to localStorage
@@ -107,14 +121,15 @@ export function checkSettings() {
         resolve(settings);
       });
     });
-    
-    newSettings.then((settings) => {
-      activeSettings = settings;
-      closeSettingsForm();
-    });
+
+    activeSettings = newSettings;
+    closeSettingsForm();
   } else {
     closeSettingsForm();
   }
+
+  // Update store with model settings
+  updateStoreWithSettings(activeSettings);
 
   return activeSettings;
 }
@@ -122,9 +137,9 @@ export function checkSettings() {
 statusBtn.addEventListener('click', openSettingsForm);
 cancelBtn.addEventListener('click', closeSettingsForm);
 
-// Subscribe to agent status changes
-$agentStatus.subscribe((agentStatus) => {
+// Subscribe to plugin status changes
+$mainStatus.subscribe((mainStatus) => {
   const activeSettings = getSettings();
-  chatContainer.setAttribute('data-status', agentStatus.toString());
-  statusText.textContent = `${LITERALS.STATUS[agentStatus]} (${activeSettings.provider})`;
+  chatContainer.setAttribute('data-status', mainStatus.toString());
+  statusText.textContent = `${LITERALS.STATUS[mainStatus]} (${activeSettings.provider})`;
 });

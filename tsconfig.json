@@ -19,8 +19,8 @@
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-
+    "isolatedModules": false,
+    "preserveConstEnums": false,
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,

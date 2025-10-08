@@ -1,37 +1,46 @@
-import { initAgent } from "../agent/agent";
-import { initChat } from "./chat";
-import { initializeStore } from "../stores";
+import { checkSettings } from "../settings/settings";
+import { initMainAgent } from "../agent/mainAgent";
+import { $activeTheme, $mainAgent, $projectData, $userData } from "../stores";
+import { PenpotAgentChat } from "../chat/PenpotAgentChat";
+import { PluginMessageType } from "../types";
 
-function handleThemeChange(theme: string) {
+$activeTheme.subscribe((theme) => {
   document.body.dataset.theme = theme;
-}
+});
 
 window.addEventListener('message', async (event) => {
-  if (event.data.source !== 'penpot') {
-    return;
-  }
+  if (event.data.source !== 'penpotAgentPlugin') return;
 
   switch (event.data.type) {
-    case "initialMessageData":
-      const userId = event.data.payload.userId;
-      const userName = event.data.payload.userName;
-      const shapes = event.data.payload.shapes;
-      const initResponse = await initAgent(userId, shapes, userName);
-      initChat((initResponse as any).text);
-      console.log('main.ts: initialMessageData: initResponse', initResponse);
+    case PluginMessageType.USER_DATA:
+      $userData.set(event.data.payload);
       break;
-    case "themeChange":
-      handleThemeChange(event.data.payload);
+
+    case PluginMessageType.PROJECT_DATA:
+      $projectData.set(event.data.payload);
+      break;
+
+    case PluginMessageType.THEME_CHANGE:
+      $activeTheme.set(event.data.payload);
       break;
   }
 });
 
-document.addEventListener('DOMContentLoaded', async () => {
-  if (!window.parent || window.parent === window) {
-    handleThemeChange('light');
-    const userId = crypto.randomUUID();
-    const initResponse = await initAgent(userId, '{}', 'Axel');
-    initChat((initResponse as any).text);
+async function init() {
+  console.log('MAIN init');
+  const chatDomElement = document.getElementById('chat') as HTMLElement;
+
+  if (!chatDomElement) {
+    throw new Error('Chat element not found');
   }
-  initializeStore();
+  
+  await checkSettings();
+  await initMainAgent();
+  PenpotAgentChat.init(chatDomElement);
+
+  await $mainAgent.get()?.sendQueryToAgent('Hello');
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await init();
 });
