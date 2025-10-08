@@ -7,7 +7,7 @@ import { $mainAgent, $projectData, $userData } from "../stores";
 
 export async function initMainAgent() {
   const mainAgent = new PenpotAgent({
-    name: "Main Agent",
+    name: "Penpot Assistant",
     instructions: `
       <instructions>
         You are a Penpot project assistant that focuses on helping users solve specific problems in their current project. You analyze the Penpot shapes to understand what the user is working on and provide targeted solutions, design tips, and step-by-step tutorials to help them achieve their goals.

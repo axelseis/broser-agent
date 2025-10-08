@@ -1,12 +1,8 @@
-import { checkSettings } from "../settings/settings";
+import { PenpotAgentSettings } from "../settings/PenpotAgentSettings";
 import { initMainAgent } from "../agent/mainAgent";
-import { $activeTheme, $mainAgent, $projectData, $userData } from "../stores";
+import { $activeTheme, $mainAgent, $projectData, $userData, $mainStatus, $configFormOpened } from "../stores";
 import { PenpotAgentChat } from "../chat/PenpotAgentChat";
 import { PluginMessageType } from "../types";
-
-$activeTheme.subscribe((theme) => {
-  document.body.dataset.theme = theme;
-});
 
 window.addEventListener('message', async (event) => {
   if (event.data.source !== 'penpotAgentPlugin') return;
@@ -27,14 +23,27 @@ window.addEventListener('message', async (event) => {
 });
 
 async function init() {
-  console.log('MAIN init');
-  const chatDomElement = document.getElementById('chat') as HTMLElement;
+  const chatDomElement = document.getElementById('penpot-chat') as HTMLElement;
+  const headerDomElement = document.getElementById('penpot-chat-header') as HTMLElement;
 
-  if (!chatDomElement) {
+  if (!chatDomElement || !headerDomElement) {
     throw new Error('Chat element not found');
   }
+
+  // Set up store subscriptions
+  $activeTheme.subscribe((theme) => {
+    document.body.dataset.theme = theme;
+  });
+
+  $mainStatus.subscribe((mainStatus) => {
+    document.body.dataset.status = mainStatus.toString();
+  });
+
+  $configFormOpened.subscribe((configFormOpened) => {
+    document.body.dataset.configOpened = configFormOpened.toString();
+  });
   
-  await checkSettings();
+  await PenpotAgentSettings.init(headerDomElement);
   await initMainAgent();
   PenpotAgentChat.init(chatDomElement);
 

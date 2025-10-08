@@ -9,10 +9,10 @@ export const enum PluginMessageType {
 }
 
 export enum MainStatus {
-  INITIALIZING = 'Initializing',
-  NOT_CONFIGURED = 'Not Configured',
-  ONLINE = 'Online',
-  OFFLINE = 'Offline'
+  INITIALIZING = 'initializing',
+  NOT_CONFIGURED = 'not_configured',
+  ONLINE = 'online',
+  OFFLINE = 'offline'
 }
 
 export enum AssistantAnswerType {

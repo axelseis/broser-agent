@@ -7,17 +7,17 @@
     <link rel="stylesheet" href="/src/style/chat.css">
     <title>AI Penpot Wizard</title>
   </head>
-  <body data-theme="undefined">
-    <div id="chat" class="chat" data-status="offline" data-config-opened="false">
+  <body data-theme="light" data-config-opened="false" data-status="not_configured">
+    <div id="penpot-chat" class="chat">
       <!-- Header -->
-      <header class="chat__header">
+      <header id="penpot-chat-header" class="chat__header">
         <div class="chat__header-bar">
           <div class="chat__status" title="Click to configure">
             <span class="chat__status-text">Offline</span>
             <span class="chat__status-indicator"></span>
           </div>
         </div>
-        <form class="chat__config-form" data-opened="false">
+        <form class="chat__config-form">
           <div class="config__field">
             <label for="ai-service" class="config__label">AI Service:</label>
             <select id="ai-service" name="provider" class="config__select" required>
