@@ -1,9 +1,9 @@
-import { PenpotAgent } from "./PenpotAgent";
-import { assistantAnswerSchema } from "../types";
-import { penpotRagTool } from "../tools/penpotRagTool";
+import { PenpotAgent } from "@/agent/PenpotAgent";
+import { assistantAnswerSchema } from "@/types";
+import { penpotRagTool } from "@/tools/penpotRagTool";
 import { tool } from "ai";
 import { z } from "zod";
-import { $mainAgent, $projectData, $userData } from "../stores";
+import { $mainAgent, $userData } from "@/stores";
 
 export async function initMainAgent() {
   const mainAgent = new PenpotAgent({

@@ -1,0 +1,60 @@
+/* Header Component Styles - Using Penpot Design System */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-secondary);
+  border-bottom: 1px solid var(--background-tertiary);
+  flex-shrink: 0;
+}
+
+.headerBar {
+  padding: var(--spacing-16) var(--spacing-24);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  cursor: pointer;
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--spacing-8);
+  background-color: var(--background-tertiary);
+  transition: background-color 0.12s ease-in-out;
+}
+
+.status:hover {
+  background-color: var(--background-quaternary);
+}
+
+.statusText {
+  font-size: var(--font-size-s);
+  color: var(--foreground-secondary);
+}
+
+.statusIndicator {
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  border-radius: 50%;
+  background-color: var(--error-500);
+}
+
+.statusIndicator.online {
+  background-color: var(--success-500);
+}
+
+.statusIndicator.offline {
+  background-color: var(--error-500);
+}
+
+.statusIndicator.notConfigured {
+  background-color: var(--warning-500);
+}
+
+.statusIndicator.initializing {
+  background-color: var(--info-500);
+}

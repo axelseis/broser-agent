@@ -1,4 +1,4 @@
-import { AgentToolType, ToolSettings } from "../types";
+import { AgentToolType, ToolSettings } from "@/types";
 import { Tool, tool } from "ai";
 
 export class PenpotTool {
@@ -8,7 +8,7 @@ export class PenpotTool {
   tool: Tool;
 
   constructor(config: ToolSettings) {
-    const { type, name, description, inputSchema, ragContentsFile, functionName, agentName } = config;
+    const { type, name, description, inputSchema } = config;
 
     this.type = type;
     this.name = name;
@@ -17,7 +17,7 @@ export class PenpotTool {
     this.tool = tool({
       description: description,
       inputSchema: inputSchema,
-      execute: async ({ input }) => {
+      execute: async () => {
         return { output: 'Hello, world!' };
       },
     });

@@ -1,5 +1,5 @@
-import { PluginMessage, PluginMessageType } from './types';
-import { cleanVoidProperties } from './utils/utils';
+import { PluginMessage, PluginMessageType } from '@/types';
+import { cleanVoidProperties } from '@/utils/utils';
 
 const sourceName = "penpotAgentPlugin";
 

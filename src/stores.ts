@@ -1,8 +1,8 @@
 import { atom } from 'nanostores';
-import { AssistantAnswer, ChatMessages, UserData, ProjectData, MainStatus } from './types';
+import { AssistantAnswer, ChatMessages, UserData, ProjectData, MainStatus } from '@/types';
 import { EmbeddingModel, ImageModel, LanguageModel } from 'ai';
-import { PenpotAgent } from './agent/PenpotAgent';
-import { PenpotTool } from './tools/PenpotTool';
+import { PenpotAgent } from '@/agent/PenpotAgent';
+import { PenpotTool } from '@/tools/PenpotTool';
 
 // Configuration atoms
 export const $activeTheme = atom<string>('light');

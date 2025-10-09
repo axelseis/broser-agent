@@ -1,4 +1,4 @@
-import { MainStatus } from "./types";
+import { MainStatus } from "@/types";
 
 export const SETTINGS_KEY = 'penpot-ai-settings';
 

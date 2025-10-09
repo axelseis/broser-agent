@@ -1,0 +1,123 @@
+/* ConfigForm CSS Module */
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--spacing-16);
+  background-color: var(--background-quaternary);
+  padding: 0 var(--spacing-24);
+  width: 100%;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-in-out, padding-top 0.2s ease-in-out;
+}
+
+.formOpened {
+  padding-top: var(--spacing-16);
+  max-height: 300px;
+}
+
+.field {
+  /* Field container styles */
+}
+
+.label {
+  display: block;
+  font-size: var(--font-size-s);
+  color: var(--foreground-secondary);
+  margin-bottom: var(--spacing-8);
+}
+
+.select,
+.input {
+  width: 100%;
+  padding: var(--spacing-8) var(--spacing-12);
+  border: 1px solid var(--background-tertiary);
+  border-radius: var(--spacing-8);
+  background-color: var(--background-tertiary);
+  color: var(--foreground-primary);
+  font-size: var(--font-size-s);
+  transition: border-color 0.12s ease-in-out;
+}
+
+.input {
+  -webkit-text-security: disc;
+}
+
+.select:focus,
+.input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+/* HTML5 Validation Styles */
+.select:invalid,
+.input:invalid {
+  border-color: var(--error-500);
+  box-shadow: 0 0 0 1px var(--error-500);
+}
+
+.select:valid,
+.input:valid {
+  border-color: var(--success-500);
+}
+
+.select:focus:invalid,
+.input:focus:invalid {
+  border-color: var(--error-500);
+  box-shadow: 0 0 0 2px var(--error-500);
+}
+
+/* HTML5 Validation Message Styling */
+.input:invalid + .error,
+.select:invalid + .error {
+  color: var(--error-500);
+  font-size: var(--font-size-xs);
+  margin-top: var(--spacing-4);
+  display: block;
+}
+
+.buttons {
+  display: flex;
+  gap: var(--spacing-12);
+  margin-bottom: var(--spacing-16);
+}
+
+.saveBtn,
+.cancelBtn {
+  flex: 1;
+  padding: var(--spacing-8) var(--spacing-16);
+  border: none;
+  border-radius: var(--spacing-8);
+  font-size: var(--font-size-s);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: all 0.12s ease-in-out;
+}
+
+.saveBtn {
+  background-color: var(--accent-primary);
+  color: var(--background-secondary);
+}
+
+.saveBtn:hover {
+  background-color: var(--accent-tertiary);
+}
+
+.cancelBtn {
+  opacity: 0;
+  pointer-events: none;
+  background-color: var(--background-tertiary);
+  color: var(--foreground-secondary);
+}
+
+.cancelBtn:hover {
+  background-color: var(--background-quaternary);
+  color: var(--foreground-primary);
+}
+
+/* Opened state for cancel button */
+.formOpened .cancelBtn {
+  opacity: 1;
+  pointer-events: auto;
+}

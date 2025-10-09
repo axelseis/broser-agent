@@ -4,11 +4,16 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "typeRoots": [
       "./node_modules/@types",
       "./node_modules/@penpot"
     ],
     "types": ["plugin-types"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -26,5 +31,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/**/*.d.ts", "src/types.ts"]
+  "include": ["src", "src/**/*.d.ts", "src/types.ts", "src/css-modules.d.ts"]
 }

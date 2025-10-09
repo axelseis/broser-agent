@@ -2,7 +2,7 @@ import { z } from "zod";
 import { tool } from "ai";
 import { restore } from '@orama/plugin-data-persistence';
 import { search } from '@orama/orama';
-import { $embeddingModel } from "../stores";
+import { $embeddingModel } from "@/stores";
 import { embed } from "ai";
 
 // Cache para la base de datos Orama

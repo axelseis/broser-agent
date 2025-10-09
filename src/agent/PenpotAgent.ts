@@ -1,6 +1,6 @@
-import { Experimental_Agent as Agent, ModelMessage, Output, stepCountIs, ToolSet, tool } from "ai";
-import { $chatMessages, $languageModel } from "../stores";
-import { PenpotAgentSettings, UserQueryMessage, AssistantAnswerMessage, assistantAnswerSchema, AssistantAnswer } from "../types";
+import { Experimental_Agent as Agent, ModelMessage, Output, stepCountIs, ToolSet } from "ai";
+import { $chatMessages, $languageModel } from "@/stores";
+import { PenpotAgentSettings, UserQueryMessage, AssistantAnswerMessage, AssistantAnswer } from "@/types";
 
 export class PenpotAgent {
   name: string;
